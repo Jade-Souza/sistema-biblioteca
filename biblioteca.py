@@ -1,6 +1,14 @@
 from datetime import date
 from emprestimo import Emprestimo
 
+from excecoes import (
+    LivroIndisponivelError,
+    UsuarioInativoError,
+    CadastroDuplicadoError,
+    LivroNaoEncontradoError,
+    UsuarioNaoEncontradoError
+)
+
 
 class Biblioteca:
 
@@ -14,8 +22,7 @@ class Biblioteca:
         for l in self.livros:
 
             if l.codigo == livro.codigo:
-                print("Erro: já existe livro com esse código.")
-                return
+                raise CadastroDuplicadoError("Já existe um livro com esse código.")
 
         self.livros.append(livro)
 
@@ -25,8 +32,7 @@ class Biblioteca:
         for u in self.usuarios:
 
             if u.matricula == usuario.matricula:
-                print("Erro: já existe usuário com essa matrícula.")
-                return
+                raise CadastroDuplicadoError("Já existe um usuário com essa matrícula.")
 
         self.usuarios.append(usuario)
 
@@ -81,20 +87,16 @@ class Biblioteca:
                 usuario = u
 
         if livro is None:
-            print("Livro não encontrado.")
-            return
+            raise LivroNaoEncontradoError("Livro não encontrado.")
 
         if usuario is None:
-            print("Usuário não encontrado.")
-            return
+            raise UsuarioNaoEncontradoError("Usuário não encontrado.")
 
         if not livro.disponivel:
-            print("Erro: livro indisponível.")
-            return
+            raise LivroIndisponivelError(f"O livro '{livro.titulo}' não está disponível.")
 
         if not usuario.ativo:
-            print("Erro: usuário inativo.")
-            return
+            raise UsuarioInativoError(f"O usuário '{usuario.nome}' está inativo.")
 
         livro.emprestar()
 
@@ -124,7 +126,7 @@ class Biblioteca:
 
                 return
 
-        print("Nenhum empréstimo ativo encontrado.")
+        raise LivroNaoEncontradoError("Nenhum empréstimo ativo encontrado.")
 
     def listar_emprestimos_ativos(self):
         print("\n--- EMPRÉSTIMOS ATIVOS ---")
